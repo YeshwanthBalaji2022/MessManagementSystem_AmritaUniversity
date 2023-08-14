@@ -1,0 +1,380 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
+ */
+package ReportModule;
+
+import UserAuthentication.MainRunner;
+import UserAuthentication.UserDataBase;
+import com.github.sarxos.webcam.Webcam;
+import com.github.sarxos.webcam.WebcamPanel;
+import com.github.sarxos.webcam.WebcamResolution;
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.LuminanceSource;
+import com.google.zxing.MultiFormatReader;
+import com.google.zxing.NotFoundException;
+import com.google.zxing.Result;
+import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
+import com.google.zxing.common.HybridBinarizer;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+
+/**
+ *
+ * @author yaswa
+ */
+public class ReportPage extends javax.swing.JFrame implements Runnable {
+
+    /**
+     * Creates new form ReportPage
+     */
+    public ReportPage() {
+        initComponents();
+        initWebcam();
+        this.setResizable(false);
+
+    }
+
+    UserDataBase udb = new UserDataBase();
+    private volatile boolean stopFlag = false;
+
+    public void generateEntryReport(String RollNumber) throws FileNotFoundException, IOException {
+        if (udb.checkRollExists(RollNumber)) {
+            String filePath = "C:/Users/yaswa/OneDrive/Documents/NetBeansProjects/Database/EntryData/Data.csv";
+            String destDir = "C:/Users/yaswa/OneDrive/Documents/NetBeansProjects/Database/Reports";
+
+            FileReader fr = new FileReader(filePath);
+            BufferedReader bfr = new BufferedReader(fr);
+
+            String destPath = destDir + "/Entry_Data_of_" + RollNumber + ".csv";
+
+            FileWriter fw = new FileWriter(destPath);
+            BufferedWriter bfw = new BufferedWriter(fw);
+
+            String line;
+
+            while ((line = bfr.readLine()) != null) {
+                if (line.contains(RollNumber)) {
+                    bfw.write(line);
+                    bfw.newLine();
+                }
+            }
+
+            bfr.close();
+            bfw.close();
+
+        } else {
+            JOptionPane.showMessageDialog(rootPane, "Unable to generate Report.\n Please try again later");
+
+        }
+    }
+
+    private WebcamPanel panel = null;
+    private Webcam webcam = null;
+    private Executor executor = null;
+
+    private void initWebcam() {
+        Dimension size = WebcamResolution.QVGA.getSize();
+        webcam = Webcam.getDefault();
+        webcam.setViewSize(size);
+        panel = new WebcamPanel(webcam);
+        panel.setPreferredSize(size);
+        panel.setFPSDisplayed(true);
+
+        webcampanel.setLayout(new BorderLayout()); // Set the layout manager for jPanel2
+        webcampanel.add(panel, BorderLayout.CENTER); // Add the panel to the center of jPanel2
+
+        executor = Executors.newSingleThreadExecutor(); // Initialize the executor
+
+        executor.execute((Runnable) this);
+    }
+
+    public void run() {
+        while (!stopFlag) {
+            do {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+//               Logger.getLogger(ReadQR.class.getName()).log(Level.SEVERE,null,ex);
+                }
+
+                Result result = null;
+                BufferedImage image = null;
+                if (webcam.isOpen()) {
+                    if ((image = webcam.getImage()) == null) {
+                        continue;
+                    }
+
+                }
+                LuminanceSource source = new BufferedImageLuminanceSource(image);
+                BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+
+                try {
+                    result = new MultiFormatReader().decode(bitmap);
+                } catch (NotFoundException ex) {
+
+                }
+                if (result != null) {
+
+                    rollText.setText(result.getText());
+                }
+
+                if (stopFlag) {
+                    break;
+                }
+
+            } while (true);
+
+            if (stopFlag) {
+                break;
+            }
+        }
+    }
+
+    public Thread newThread(Runnable r) {
+        Thread t = new Thread(r, "My Thread");
+        t.setDaemon(true);
+        return t;
+    }
+
+    public void stopThread() {
+        stopFlag = true;
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jPanel5 = new javax.swing.JPanel();
+        webcampanel = new javax.swing.JPanel();
+        rollText = new javax.swing.JTextField();
+        generate = new javax.swing.JButton();
+        rollLabel = new javax.swing.JLabel();
+        jPanel6 = new javax.swing.JPanel();
+        title = new javax.swing.JLabel();
+        goBackButton = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(255, 255, 255));
+
+        jPanel5.setBackground(new java.awt.Color(255, 255, 255));
+
+        webcampanel.setBorder(new javax.swing.border.MatteBorder(null));
+        webcampanel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+
+        javax.swing.GroupLayout webcampanelLayout = new javax.swing.GroupLayout(webcampanel);
+        webcampanel.setLayout(webcampanelLayout);
+        webcampanelLayout.setHorizontalGroup(
+            webcampanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 229, Short.MAX_VALUE)
+        );
+        webcampanelLayout.setVerticalGroup(
+            webcampanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 169, Short.MAX_VALUE)
+        );
+
+        rollText.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rollTextActionPerformed(evt);
+            }
+        });
+
+        generate.setBackground(new java.awt.Color(0, 0, 204));
+        generate.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 0, 14)); // NOI18N
+        generate.setForeground(new java.awt.Color(255, 255, 255));
+        generate.setText("Generate");
+        generate.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        generate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                generateActionPerformed(evt);
+            }
+        });
+
+        rollLabel.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 1, 18)); // NOI18N
+        rollLabel.setForeground(new java.awt.Color(0, 0, 0));
+        rollLabel.setText("RollNumber:");
+
+        jPanel6.setBackground(new java.awt.Color(255, 242, 0));
+
+        title.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 1, 60)); // NOI18N
+        title.setForeground(new java.awt.Color(0, 0, 0));
+        title.setText("Get Your Report Here");
+
+        goBackButton.setBackground(new java.awt.Color(255, 0, 0));
+        goBackButton.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 0, 12)); // NOI18N
+        goBackButton.setForeground(new java.awt.Color(0, 0, 0));
+        goBackButton.setText("Go Back");
+        goBackButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                goBackButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGap(180, 180, 180)
+                .addComponent(title)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 112, Short.MAX_VALUE)
+                .addComponent(goBackButton)
+                .addContainerGap())
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                .addContainerGap(19, Short.MAX_VALUE)
+                .addComponent(title)
+                .addGap(15, 15, 15))
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(goBackButton)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGap(519, 519, 519)
+                        .addComponent(generate))
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGap(309, 309, 309)
+                        .addComponent(rollLabel)
+                        .addGap(18, 18, 18)
+                        .addComponent(rollText, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(webcampanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(31, 31, 31)))
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(webcampanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(49, 49, 49)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGap(5, 5, 5)
+                        .addComponent(rollLabel))
+                    .addComponent(rollText, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(28, 28, 28)
+                .addComponent(generate)
+                .addContainerGap(116, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        setSize(new java.awt.Dimension(904, 551));
+        setLocationRelativeTo(null);
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void generateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateActionPerformed
+        try {
+            // TODO add your handling code here:
+            String RollNumbr = rollText.getText();
+            if (RollNumbr.equals("")) {
+                JOptionPane.showMessageDialog(rootPane, "Enter the RollNumber");
+            } else {
+                generateEntryReport(RollNumbr);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(ReportPage.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_generateActionPerformed
+
+    private void rollTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rollTextActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_rollTextActionPerformed
+
+    private void goBackButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_goBackButtonActionPerformed
+        // TODO add your handling code here:
+        webcam.close();
+        stopThread();
+        dispose();
+
+    }//GEN-LAST:event_goBackButtonActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(ReportPage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(ReportPage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(ReportPage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(ReportPage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new ReportPage().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton generate;
+    public javax.swing.JButton goBackButton;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JLabel rollLabel;
+    private javax.swing.JTextField rollText;
+    private javax.swing.JLabel title;
+    private javax.swing.JPanel webcampanel;
+    // End of variables declaration//GEN-END:variables
+}
